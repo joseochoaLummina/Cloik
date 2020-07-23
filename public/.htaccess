@@ -1,0 +1,36 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{https:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{https:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+
+    #Header always set Content-Security-Policy "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'"
+    #Header always set Strict-Transport-security "max-age=31536000; includeSubDomains"
+    #Header always set X-Frame-Options "SAMEORIGIN"
+    #Header always set X-Xss-Protection "1; mode=block"
+    #Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+<IfModule mod_header.c>
+    Header unset Server
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
+    Header unset X-CF-Powered-By
+    Header unset X-Mod-Pagespeed
+    Header unset X-Pingback
+    Header always set Access-Control-Allow-Origin "*"
+</IfModule>

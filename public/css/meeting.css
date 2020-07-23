@@ -1,0 +1,128 @@
+#meetContainer {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 45%);
+    grid-gap: 5%;
+}
+
+.meeting {
+    width: 100%;
+    height: 10rem;
+    background-color: white;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    /* #18a7ff; */
+}
+
+.company-meeting {
+    width: 100%;
+    height: 12rem;
+    background-color: white;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    /* #18a7ff; */
+}
+
+.meeting>img,
+.company-meeting>img {
+    width: 30%;
+}
+
+.meeting>div,
+.company-meeting>div {
+    padding: 0 0 0 10px;
+    width: 70%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 50% 50%;
+}
+
+.meeting>div>div,
+.company-meeting>div>div {
+    width: 100%;
+    line-height: 15px;
+}
+
+.meetlinks {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.meetlinks button {
+    margin: 5px;
+}
+
+.meetTitle {
+    color: #18a7ff;
+    font-weight: 900;
+    font-size: large;
+    margin: 3px 0;
+}
+
+.meetSubTitle {
+    color: #18a7ff;
+    font-weight: 300;
+    font-size: large;
+    margin: 3px 0;
+}
+
+.meetLocation {
+    margin: 5px 0;
+    padding: 2px;
+    color: rgba(128, 128, 128, 0.8);
+}
+
+.meetDate {
+    color: white;
+    background-color: #6ACA00;
+}
+
+.enterCall {
+    border: 1px solid green;
+    color: green;
+    background-color: white;
+    border-radius: 0%;
+}
+
+.enterCall:hover {
+    border: 1px solid #6ACA00;
+    background-color: #6ACA00;
+    color: white;
+}
+
+.cancelCall {
+    border: 1px solid rgb(136, 7, 7);
+    color: rgb(136, 7, 7);
+    background-color: white;
+    border-radius: 0%;
+}
+
+.cancelCall:hover {
+    border: 1px solid rgb(136, 7, 7);
+    background-color: rgb(136, 7, 7);
+    color: white;
+}
+
+.video-call {
+    background-color: black;
+    min-height: 600px;
+    width: 90%;
+    margin: 0% 5%;
+    align-self: center;
+    position: relative;
+}
+
+.video-call>* {
+    position: absolute !important;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(240, 248, 255, 0.5);
+}

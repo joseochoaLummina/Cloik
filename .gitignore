@@ -1,0 +1,16 @@
+/node_modules
+/public/hot
+/public/storage
+/public/videos
+/storage/*.key
+/vendor
+/vendor/*
+/.idea
+/.vscode
+/.vagrant
+/.tmp.drivedownload
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+desktop.ini
