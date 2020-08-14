@@ -182,7 +182,7 @@ class CompaniesController extends Controller
         $data['company_id'] = $company_id;
 
         $data_save = FavouriteApplicant::create($data);
-        dd($data_save);
+        
         flash(__('Job seeker has been added in favorites list'))->success();
         return \Redirect::route('applicant.profile', $application_id);
     }
@@ -196,7 +196,7 @@ class CompaniesController extends Controller
                 ->where('job_id', '=', $job_id)
                 ->where('company_id', '=', $company_id)
                 ->delete();
-        dd($data_save);
+        
         flash(__('Job seeker has been removed from favorites list'))->success();
         return \Redirect::route('applicant.profile', $application_id);
     }

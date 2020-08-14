@@ -60,6 +60,9 @@ use AuthenticatesUsers;
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Cierre de secion y redireccion al formulario de login
+     */
     public function logout(Request $request)
     {
         $this->guard('recruiter')->logout();
@@ -112,6 +115,10 @@ use AuthenticatesUsers;
      * @param  $user Socialite user object
      * @param $provider Social auth provider
      * @return  User
+     */
+
+    /**
+    * Funcion para el registro de un reclutador
      */
     public function findOrCreateUser($user, $provider)
     {

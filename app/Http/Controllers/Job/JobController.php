@@ -245,7 +245,9 @@ class JobController extends Controller
                         ->with('jobExperienceIdsArray', $jobExperienceIdsArray)
                         ->with('seo', $seo);
     }
-
+    /**
+     * Comprueba que el aplicante cumpla con: El perfil completo, las habilidades que requiere la plaza de trabajo que desea aplicar. Retorna true en caso de cumplir o false en caso de no cumplir
+    */
     public function compruebaAplicante($job){        
         $user = Auth::user();        
         $perfil=DB::select('select id, first_name, last_name, name, email, date_of_birth, gender_id, marital_status_id, nationality_id, national_id_card_number, country_id, state_id, city_id, industry_id, street_address, is_active, verified, image from users where id=:id_user',['id_user'=>$user->id]);
@@ -280,9 +282,11 @@ class JobController extends Controller
         return $aplicar;
     }
 
+    /**
+     *  Obtiene detalles de la plaza de trabajo, Comprueba el inicio de secion de aplicante en que caso de haber uniciado la sesion le da acceso a los  detalles de la plaza, caso contrario le pide que inicie secion, cuando el aplicante visita la plaza aumenta el contador de visitas a esa plaza, si empresa o reclutador entra a la plaza solo da acceso a la opcion de inivitar candidatos a esa plaza
+     */
     public function jobDetail(Request $request, $job_slug)
     {
-        
         $job = Job::where('slug', 'like', $job_slug)->firstOrFail();  
         /**creacion metas */
         $auxId = DB::select('select company_id from jobs where id = :id', ['id'=>$job->id]);
@@ -450,14 +454,15 @@ class JobController extends Controller
         return \Redirect::route('job.detail', $job_slug);
     }
 
-    // public function applyJob(Request $request, $job_s, $video)
+    /**
+     *  Funcion para la aplicacion de un aplicante a una plaza de trabajo, comprueba que el aplicante este activa y pasa las variables con la informacion necesaria a otra vista
+     */
     public function applyJob($job_s, $video)
     {
-        
         $job_slug=htmlspecialchars_decode($job_s);
         $user = Auth::user();
         $job = Job::where('slug', 'like', $job_slug)->first();
-        $user_id = Auth::user()->id;
+        $user_id = $user->id;
         $idVideo=$video;
         // DB::update('update video_apply_id set :idVideo where user_id = :user_id', ['idVideo'=>$idVideo,'user_id'=>$user_id]);
         if ((bool)$user->is_active === false) {
@@ -490,7 +495,9 @@ class JobController extends Controller
                         ->with('myCvs', $myCvs)
                         ->with('videoApply', $idVideo);
     }
-
+    /**
+     * comprueba si el aplicante ya realizo una aplicacion hacia la plaza anteriormente, de haberlo hecho activa esa aplicacion anterior, en caso controrio inserta un nuevo registro
+     */
     public function postApplyJob(Request $request)
     {
         $user = Auth::user();
@@ -541,7 +548,9 @@ class JobController extends Controller
         return view('job.my_applied_jobs')
                         ->with('jobs', $jobs);
     }
-
+    /**
+     * Cambia el estado de un registro de aplicacion de un aplicante hacia una plaza, elimina las reuniones plinificadas con la empresa y envia un mensaje a la empresa de la plaza notificando la eliminancion
+     */
     public function deleteJobApply(Request $request, $job_id) {
             
         $job=Job::where('id', 'like', $job_id)->first();
@@ -583,6 +592,9 @@ class JobController extends Controller
         return view('job.my_favourite_jobs')
                         ->with('jobs', $jobs);
     }
+    /**
+     * Obtiene a los aplicante que puede invitar una empresa a una plaza y si ya esta invitado
+     */
     public function showInviteCandidate($id_job)
     {  
         $cadidatos=DB::select('select distinct U.id, U.name, U.image,U.email ,CO.country,CI.city from users U inner join profile_skills PS on U.id=PS.user_id inner join
@@ -595,7 +607,9 @@ class JobController extends Controller
                 ->with('id_job',$id_job)
                 ->with('invitados',$invitados);
     }
-    
+    /**
+     * Envia un mensaje para la aplicacion de un plaza a un candidato
+     */
     public function inviteCandidate($id_job,$user_id)
     {
         $job=Job::where('id', 'like', $id_job)->first();
@@ -622,7 +636,10 @@ class JobController extends Controller
         
         return \Redirect::route('job.detail', $job->slug);
     }
-
+    
+    /**
+     * Retorna verdadero si un usuario tiene video principal en su cuenta o false si no lo tiene
+    */
     public function getMainVideo() {
         $mainVideo = DB::select('select id from video_apply where id_user = :id_user and is_active = 1 and is_main=1', ['id_user'=>Auth::user()->id]);
         //$mainVideo = collect($videos)->where('is_main', '=', 1)->toArray();
@@ -633,7 +650,9 @@ class JobController extends Controller
         }
         
     }
-
+    /**
+     * Retorna true si un usuario tiene videos en su cuenta
+     */
     public function getVideos() {
         $videos = DB::select('select id from video_apply where id_user = :id_user and is_active = 1', ['id_user'=>Auth::user()->id]);
         //$videos = collect($videos)->where('is_main', '=', 0)->toArray();

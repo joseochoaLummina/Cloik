@@ -121,7 +121,11 @@
                     @endif
                     
                 @endif
-                @if(null !== $profileCv)<a href="{{asset('cvs/'.$profileCv->cv_file)}}" class="btn"><i class="fa fa-download" aria-hidden="true"></i> {{__('Download CV')}}</a>@endif
+                @if(null !== $profileCv)
+                    <a href="{{asset('cvs/'.$profileCv->cv_file)}}" class="btn"><i class="fa fa-download" aria-hidden="true"></i> {{__('Download CV')}}</a>
+                @else
+                    <a class="btn"><i class="fa fa-download" aria-hidden="true"></i> {{__('None CV')}}</a>
+                @endif
                 <!-- <a href="#contact_applicant" class="btn"><i class="fa fa-envelope" aria-hidden="true"></i> {{__('Send Message')}}</a> -->
                 @if (Auth::guard('company')->check() || Auth::guard('recruiter')->check() )
                     @if(Auth::guard('company')->check())

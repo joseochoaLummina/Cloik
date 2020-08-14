@@ -40,3 +40,4 @@ include_once($real_path . 'package.php');
 include_once($real_path . 'video.php');
 include_once($real_path . 'testimonial.php');
 include_once($real_path . 'slider.php');
+include_once($real_path . 'recruiter.php');

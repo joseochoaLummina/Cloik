@@ -14,13 +14,17 @@ class LanguageTestController extends Controller
     {
         $this->middleware('auth');
     }
-
+    /**
+     * Obtiene los lenguajes con estado activo para hacer test de idioma
+     */
     public function getLanguageTestAvailable() {
         $langs = DB::select('select * from available_lang_test where is_active = 1;');
         $langs = collect($langs)->toArray();
         return $langs;
     }
-
+    /**
+     * Obtiene los resultados de test de idiomas realizados por un usuario candidato
+     */
     public function getLanguageTest()
     {
         $langs = $this->getLanguageTestAvailable();
@@ -33,7 +37,9 @@ class LanguageTestController extends Controller
                                          ->with('lang_test', $lang_test)
                                          ->with('logs_test', $logs_test);
     }
-
+    /**
+     * Obtiene un parrafo aleatoreo segun un idioma seleccionado para realizar test de idioma
+     */
     public function getParagraph(Request $request) {
         $lang = $request->input('lang');
         $lang_test = DB::table('lang_test')->where('is_active', 1)->where('lang', $lang)->inRandomOrder()->first();
@@ -42,7 +48,9 @@ class LanguageTestController extends Controller
         $data[1] = $lang_test->paragraph;
         return $data;
     }
-
+    /**
+     * Obtiene y guarda en la base de datos el resultado del test de idioma y muestra el resultado al finalizar un test de idioma
+     */
     public function qualifyLanguageTest(Request $request)
     {
         try {

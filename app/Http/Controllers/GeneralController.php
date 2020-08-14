@@ -19,7 +19,9 @@ use App\Mail\RecruiterInvitationRegisterMail;
 
 class GeneralController extends Controller
 {
-    
+    /**
+     * Retorna una vista de error en caso de fallar el registro de un reclutador nuevo
+     */
     public function recruiterInvitationError(Request $request, $id) {
         $invitationId = $id;
         $invitation = RecruiterInvitation::where('id', $id)->update(['state'=>1]);
@@ -27,7 +29,9 @@ class GeneralController extends Controller
 
         return view('general.error_report_inv_recruiter');
     }
-
+    /**
+     * Al abrir un link de registro de reclutador, esta funcion verifica si esta activa la invitación y obtiene los datos para crear el registro en la tabla de reclutadores Y devuelve el formulario para que ingrese los campos que faltan
+     */
     public function showRecruiterForm(Request $request, $id) {
         $invitationId = $id;
         $invitation = RecruiterInvitation::where('id', $id)->first();
@@ -60,7 +64,9 @@ class GeneralController extends Controller
                                             ->with('state', $state)
                                             ->with('enableForm', $enableForm);
     }
-
+    /**
+     * Manda a los correos de invitacion para ser registrado como reclutador ingresados por una compnñia 
+     */
     public function sendInvitationRecruiter(Request $request) 
     {
         $emailsMaster = $request->input('emailsMaster');
@@ -111,12 +117,16 @@ class GeneralController extends Controller
             }
         }
     }
-
+    /**
+     * Cambia el estado de un reclutador a inactivo cuando lo elimina una compañia
+     */
     public function DeleteRecruiter($id) {
         DB::delete('update recruiters set is_active = 0 where id = :id', ['id' => $id]);
         return \Redirect::route('company.recruiters');
     }
-    
+    /**
+     * Funcion para la creacion de nuevos reclutadores
+     */
     public function newRecruiter(Request $request) {
         $cuenta = DB::select('select count(*) as cuenta from recruiters where email = (select email from recruiter_invitations where id = :id )', ['id' => $request->input('invitation')]);
         
@@ -149,5 +159,39 @@ class GeneralController extends Controller
             return view('general.recruiter_exists')->with('company_name', $company[0]->name);
         }
 
+    }
+    /**
+     * Verifica la exisitencia del reclutador antes de enviar invitacion
+     */
+    public function verifyExistEmail(Request $request){
+        
+        $companyId=Auth::guard('company')->user()->id;
+        $email=$request->input('email');
+        $lookInUsers=DB::select('SELECT true exist from users where email=:email',['email'=>$email]);
+        $lookInCompanies=DB::select('SELECT true exist from companies where email=:email',['email'=>$email]);
+        $lookInRecruiters=DB::select('SELECT true exist from recruiters where email=:email and id_company=:companyId',['email'=>$email,'companyId'=>$companyId]);
+
+        if(count($lookInUsers)>0){
+            return "user";
+
+        }elseif(count($lookInCompanies)>0){
+            return "company";
+
+        }elseif(count($lookInRecruiters)>0){
+            return "recruiter";
+
+        }else{
+            return "notFind";
+        }
+
+        /*
+            Esta funcion realiza varias consultas a la base de datos
+            para saber si el correo que el usuario intenta invitar
+            como un nuevo recluta NO ES:
+            -Un candidato
+            -una compañia
+            -un recluta de la compañia que intenta enviar la invitacion
+        */
+        
     }
 }

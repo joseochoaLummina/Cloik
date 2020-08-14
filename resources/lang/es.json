@@ -91,6 +91,7 @@
     "Description required": "Descripción requerida",
     "Design by": "Diseñado por",
     "Download CV": "Descargar CV",
+    "None CV":"No hay CV",
     "Drop files here or click to upload Project Image": "Suelta los archivos aquí o haz clic para cargar Project Image",
     "Edit": "Editar",
     "Edit CV": "Editar CV",
@@ -669,5 +670,11 @@
     "Sorry, but you must have at least one video to apply on the jobs":"Lo sentimos, pero necesitas al menos un video para aplicar a las plazas",
     "Sorry, but you must have a main video to apply on the jobs":"Lo sentimos, pero debes de tener seleccionado un video principal para aplicar",
     "Set main video":"Elegir video principal",
-    "Record video":"Grabar video"
+    "Record video":"Grabar video",
+    "This call expired":"Esta reunion Expiro",
+    "Emails were sent successfully":"Los correos fueron enviados satisfactoriamente",
+    "You can't invite an already register user":"No puedes invitar a un candidato ya registrado",
+    "You can't invite an already register company":"No puedes invitar a otra compañia",
+    "It is already your recruiter":"Ya es parte de tus reclutadores",
+    "Something went wrong":"Algo salio mal"
 }

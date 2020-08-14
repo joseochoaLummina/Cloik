@@ -47,13 +47,22 @@ use RegistersUsers;
         $this->middleware('guest', ['except' => ['getVerification', 'getVerificationError']]);
     }
 
+    /**
+     * Funcion encargada de registrar un nuevo Candidato en el pre-registro
+     */
     public function register(UserFrontRegisterFormRequest $request)
     {
+        // Se verifica que el correo no este tomado por una empresa
         $authCompany = Company::where('email', 'like', $request->input('email'))->first();
+
         if ($authCompany) {
             flash(__('This Email has already been taken'))->error();            
             return redirect('/register');
+
         } else {
+            
+            //En casao de que el correo este disponible se crea un nuevo registro en la base de datos
+
             $user = new User();
             $user->first_name = $request->input('first_name');
             $user->middle_name = $request->input('middle_name');
@@ -63,17 +72,19 @@ use RegistersUsers;
             $user->is_active = 0;
             $user->verified = 0;
             $user->save();
-            /*         * *********************** */
+
             $user->name = $user->getName();
             $user->update();
             
-            /*         * *********************** */
+            // Tambien se verifica que el correo no este tomado por otro candidato
+            
             event(new Registered($user));
             event(new UserRegistered($user));
             $this->guard()->login($user);
             UserVerification::generate($user);
             UserVerification::send($user, 'User Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
-            return $this->registered($request, $user) ? 'hola': redirect('/home-profile');   
+            return $this->registered($request, $user) ? : redirect('/home-profile');  
+
         }        
     }
 

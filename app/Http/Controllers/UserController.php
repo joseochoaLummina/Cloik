@@ -70,6 +70,9 @@ class UserController extends Controller
         $this->middleware('auth', ['except' => ['viewPublicProfile','showApplicantProfileEducation', 'showApplicantProfileProjects', 'showApplicantProfileExperience', 'showApplicantProfileSkills', 'showApplicantProfileLanguages']]);
     }
 
+    /**
+     * Funcion que carga el perfil publico de un candidato
+     */
     public function viewPublicProfile($id)
     {
         $type='candidate';
@@ -84,6 +87,10 @@ class UserController extends Controller
                         ->with('application_id', $application_id)
                         ->with('type',$type);
     }
+
+    /**
+     * Funcion que muestra los comentarios en un perfil de un candidato para una plaza en especifico
+     */
     public function showComment (Request $request)
     {
         $user_id=$request->input('user_id');
@@ -112,6 +119,10 @@ class UserController extends Controller
 
         echo $html;
     }
+
+    /**
+     * Funcion que carga el perfil para editar del candidato
+     */
     public function myProfile()
     {
         $genders = DataArrayHelper::langGendersArray();
@@ -236,6 +247,9 @@ class UserController extends Controller
                         ->with('companies', $companies);
     }
 
+    /**
+     * Funcion que carga todos los mensajes internos del candidato
+     */
     public function myMessages()
     {
         $user = User::findOrFail(Auth::user()->id);
@@ -247,8 +261,16 @@ class UserController extends Controller
         return view('user.applicant_messages')
                         ->with('user', $user)
                         ->with('messages', $messages);
+
+        /*
+            Esta funcion carga los mensajes directos,
+            no las notificaciones de la plataforma
+        */
     }
 
+    /**
+     * Funcion que carga el contenido de cada mensaje del candidato
+     */
     public function applicantMessageDetail($message_id)
     {
         $user = User::findOrFail(Auth::user()->id);
@@ -260,6 +282,9 @@ class UserController extends Controller
                         ->with('message', $message);
     }
 
+    /**
+     * Funcion que elimina la cuenta de un candidato
+     */
     public function deleteUser(Request $request) {
         $id_user=Auth::user()->id;
         $is_deleted_img =$this->deleteUserImage($id_user);
@@ -272,12 +297,16 @@ class UserController extends Controller
         $videoAudio=['video'=>$video,'audio'=>$audio];
         return $videoAudio;
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
         return Redirect::route('login');
     }
 
+    /**
+     * Funcion que envia un mensaje interno a la compañia y reclutadores master solicitando un cambio en una reunion
+     */
     public function changeMeeting(Request $request){
         $id_user=Auth::user()->id;
         $idMeeting=$request->input("id");

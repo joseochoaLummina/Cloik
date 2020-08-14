@@ -64,14 +64,18 @@ class CompanyController extends Controller
         $this->runCheckPackageValidity();
     }
 
+    /**
+     * Funcion que retorna la vista del tablero con los datos de los trabajos mas visitados
+     */
     public function index()
     {
         $company_id=Auth::guard('company')->user()->id;
-        $array=DB::select('select J.id as job_id, J.title as title, J.slug as slug, J.expiry_date as expiry_date, J.created_at as created_at, count(JV.id) as cantidad from job_views JV join jobs J on JV.job_id=J.id where J.company_id=:company_id group by J.id order by count(JV.id) desc;', ['company_id'=>$company_id]);
+        $array=DB::select('SELECT J.id as job_id, J.title as title, J.slug as slug, J.expiry_date as expiry_date, J.created_at as created_at, count(JV.id) as cantidad from job_views JV join jobs J on JV.job_id=J.id where J.company_id=:company_id group by J.id order by count(JV.id) desc;', ['company_id'=>$company_id]);
         
         return view('company_home')
                 ->with('array',$array);
     }
+
     public function company_listing()
     {
         $data['companies']=Company::paginate(20);
@@ -91,6 +95,9 @@ class CompanyController extends Controller
                         ->with('ownershipTypes', $ownershipTypes);
     }
 
+    /**
+     * Funcion que actualiza la informacion del perfil de la compañia
+     */
     public function updateCompanyProfile(CompanyFrontFormRequest $request)
     {
         $company = Company::findOrFail(Auth::guard('company')->user()->id);
@@ -158,6 +165,9 @@ class CompanyController extends Controller
         return \Redirect::route('company.profile');
     }
 
+    /**
+     * Funcion que agrega a un candidato a la lista (Base de datos) de aplicantes favoritos de la compañia
+     */
     public function addToFavouriteApplicant(Request $request, $application_id, $user_id,$type, $company_id)
     {    
         $data['user_id'] = $user_id;
@@ -172,6 +182,9 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Funcion que elimina a un candidato de la lista (Base de datos) de aplicantes favoritos de la compañia
+     */
     public function removeFromFavouriteApplicant(Request $request, $application_id, $user_id,$type, $company_id)
     {
         $data['user_id'] = $user_id;
@@ -188,6 +201,9 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Funcion que retorna la informacion publica de una compañia en la vista detalles de la compañia
+     */
     public function companyDetail(Request $request, $company_slug)
     {
         $company = Company::where('slug', 'like', $company_slug)->firstOrFail();
@@ -312,6 +328,10 @@ class CompanyController extends Controller
                         ->with('job_id',$job_id);
     }
 
+    /**
+     * Funcion que se encarga de obtener y mostrar la lista de aplicantes a una plaza 
+     * solo los aplicantes que son candidatos favoritos de la compañia
+     */
     public function listFavouriteAppliedUsers(Request $request, $job_id)
     {
         $company_id = Auth::guard('company')->user()->id;
@@ -324,6 +344,9 @@ class CompanyController extends Controller
                         ->with('job_id',$job_id);
     }
 
+    /**
+     * Funcion que muestra la informacion que ha subido el candidato para aplicar a una plaza en especifico
+     */
     public function applicantProfile($application_id)
     {
         $job_application = JobApply::findOrFail($application_id);
@@ -350,7 +373,7 @@ class CompanyController extends Controller
                         ->with('type',$type)
                         ->with('datos',$video);
     }
-
+ 
     public function commentCandidate(Request $request)
     {
         $html="-";
@@ -358,6 +381,9 @@ class CompanyController extends Controller
         return $html;
     }
 
+    /**
+     * Funcion que obtiene y retorna la vista de la informacion publica de un candidato
+     */
     public function userProfile($application_id)
     {
         $user = User::findOrFail($application_id);
@@ -378,6 +404,7 @@ class CompanyController extends Controller
                         ->with('page_title', 'Job Seeker Profile')
                         ->with('form_title', 'Contact Job Seeker');
     }
+
 
     public function companyFollowers()
     {
@@ -414,6 +441,9 @@ class CompanyController extends Controller
                         ->with('message', $message);
     }
 
+    /**
+     * Funcion utilizada para completar el perfil de la compañia cuando se acaba de registrar
+     */
     public function fullProfileCompany(){
         
         $countries = DataArrayHelper::defaultCountriesArray();
@@ -434,6 +464,9 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Funcion que agrega nuevos comentarios en el perfil de un aplicante a una de las plazas de la compañia
+     */
     public function newComment(Request $request,$application_id,$from)
     {        
         $company_id=Auth::guard('company')->user()->id;
@@ -447,6 +480,9 @@ class CompanyController extends Controller
         return redirect()->route('applicant.profile', ['application_id' => $application_id]);
     }
 
+    /**
+     * Funcion que despliega y muestra todos los comentarios que se han hecho sobre un aplicante de una de las plazas de la compañia
+     */
     public function showCommentCompany (Request $request)
     {
         $company=Auth::guard('company')->user();
@@ -484,6 +520,10 @@ class CompanyController extends Controller
         }
         echo $html;
     }
+
+    /**
+     * Funcion encargada de borrar un comentario del perfil de un aplicante a una de las plazas de la compañia
+     */
     public function deleteCommentCompany (Request $request)
     {
         $company=Auth::guard('company')->user();
@@ -511,6 +551,10 @@ class CompanyController extends Controller
         }
         echo $html;
     }
+
+    /**
+     * Funcion que retorna a la modal la informacion de una reunion con un aplicante en especifico a una plaza en especifico
+     */
     public function getScheduleMeeting($user_id,$job_id,$company_id)
     {   
         $arrayRecruiter=array();
@@ -534,6 +578,9 @@ class CompanyController extends Controller
                     ->with('arrayRecruiter',$recruiterSelect);
     }
 
+    /**
+     * Funcion encargada de guardar una reunion con un aplicante en especifico
+     */
     public function saveMeeting(Request $request)
     {
        $user_id=$request->input('user_id');
@@ -581,6 +628,9 @@ class CompanyController extends Controller
           
     }
 
+    /**
+     * Funcion encargada de actualizar una reunion con un aplicante en especifico
+     */
     public function updateMeeting(Request $request)
     {
         $id=$request->input('id');
@@ -621,6 +671,9 @@ class CompanyController extends Controller
         
     }
 
+    /**
+     * Funcion encargada de eliminar una reunion con un aplicante en especifico
+     */
     public function deleteMeeting(Request $request)
     {
         $id=$request->input('id');
@@ -637,6 +690,9 @@ class CompanyController extends Controller
         $this->cancelNotifications($user,$company,$recruiters_id,$slug,$meet);        
     }
 
+    /**
+     * Funcion encargada de notificar por mensaje interno y correo cuando la compañia decide eliminar/cancelar una reunion
+     */
     private function cancelNotifications($user,$company,$recruiters_id,$slug,$meet){
         $recruiter=[];
         foreach($recruiters_id as $value){
@@ -677,7 +733,7 @@ class CompanyController extends Controller
         $dataMessage['receivedfrom'] = 1;
         $dataMessage['meeting_id'] = $meet[0]->id;
         $meeting = new MeetingController();
-        $meeting->sendNotification($dataMessage);
+        $meeting->sendNotificationMeetingCanceled($dataMessage);
 
         if(count($recruiters_id)>0){
             foreach($recruiters_id as $value){
@@ -688,7 +744,7 @@ class CompanyController extends Controller
                 $dataMessage['receivedfrom'] = 1;
                 $dataMessage['meeting_id'] = $meet[0]->id;
                 $meeting = new MeetingController();
-                $meeting->sendNotification($dataMessage);
+                $meeting->sendNotificationMeetingCanceled($dataMessage);
             }
         }
     }
@@ -700,6 +756,9 @@ class CompanyController extends Controller
                 ->with('datos',$video[0]);
     }
 
+    /**
+     * Funcion que agrega a un candidato a la lista negra de esa compañia
+     */
     public function addToBlackList(Request $request)
     {
         $application_id = $request->input('application_id');
@@ -722,7 +781,9 @@ class CompanyController extends Controller
         }
     }
 
-    
+    /**
+     * Funcion que muestra los reclutadores actuales de la compañia
+     */
     public function showRecruiters(Request $request) 
     {
         $companyId = Auth::guard('company')->user()->id;
@@ -740,10 +801,11 @@ class CompanyController extends Controller
                                                 ->with('jr_recruiters_company', $jr_recruiters_company)
                                                 ->with('limit_recruiters', $limit_recruiters);
 
-    }
-    
-    
+    }   
 
+    /**
+     * Funcion que elimina a un candidato desde el perfil del candidato
+     */
     public function deleteToBlackList($application_id,$user_id,$type,$company_id)
     {
         $id=DB::select('SELECT id FROM lista_negra where id_candidato=:user_id and id_empresa=:company_id', ['user_id'=>$user_id,'company_id'=>$company_id]);
@@ -756,6 +818,9 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Funcion que elimina a un candidato desde la vista de blacklist
+     */
     public function deleteFromBlackList($user_id, $company_id)
     {
         $id=DB::select('SELECT id FROM lista_negra where id_candidato=:user_id and id_empresa=:company_id', ['user_id'=>$user_id,'company_id'=>$company_id]);
@@ -764,6 +829,9 @@ class CompanyController extends Controller
         return \Redirect::route('company.blacklist');
     }
 
+    /**
+     * Funcion que recolecta y muestra la informacion de los candidatos que son parte de la lista negra de la compañia
+     */
     public function showBlacklist(Request $request) 
     {
         $companyId = Auth::guard('company')->user()->id;
@@ -776,6 +844,9 @@ class CompanyController extends Controller
 
     }
 
+    /**
+     * Funcion que recolecta y muestra la informacion de los candidatos que son parte de la lista de favoritos de la compañia
+     */
     public function showFavourites(Request $request) {
         $companyId = Auth::guard('company')->user()->id;
         $users = DB::select('select F.id, F.user_id, U.first_name, U.last_name, U.image, CASE WHEN F.job_id = null THEN "General" WHEN F.job_id <> null THEN (SELECT title FROM jobs WHERE id = F.job_id) END as job
@@ -784,6 +855,9 @@ class CompanyController extends Controller
         return view('company.company_favourites')->with('users', $users);
     }
 
+    /**
+     * Funcion que elimina a un candidato de la lista de favoritos de la compañia
+     */
     public function deleteFromFavourites($user_id)
     {
        $company_id=Auth::guard('company')->user()->id;
@@ -800,6 +874,10 @@ class CompanyController extends Controller
         $company = Company::findOrFail(Auth::guard('company')->user()->id);
         
     }
+
+    /**
+     * Funcion que elimina el perfil (la cuenta) de la compañia
+     */
     public function deleteProfileCompany(Request $request)
     {
         $company = Auth::guard('company')->user();

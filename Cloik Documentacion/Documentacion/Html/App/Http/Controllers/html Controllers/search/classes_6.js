@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['languagetestcontroller_97',['LanguageTestController',['../class_app_1_1_http_1_1_controllers_1_1_language_test_controller.html',1,'App::Http::Controllers']]]
+];

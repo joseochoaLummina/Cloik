@@ -61,7 +61,9 @@ class RecruiterController extends Controller
         $this->runCheckPackageValidity();
     }
 
-
+    /**
+     * Funcion encargada de cargar el tablero del reclutadores 
+     */
     public function viewRecruiterHome(Request $request) 
     {
         $company_id=Auth::guard('recruiter')->user()->id_company;
@@ -75,7 +77,9 @@ class RecruiterController extends Controller
         }
         
     }
-
+    /**
+     * Funcion encargada de cargar el perfil del reclutador 
+     */
     public function recruiterProfile()
     {
         $recruiter=Auth::guard('recruiter')->user();
@@ -84,7 +88,9 @@ class RecruiterController extends Controller
                         ->with('recruiter', $recruiter)
                         ->with('company', $company);
     }
-    
+    /**
+     * Funcion encargada de actualizar el perfil del reclutador 
+     */
     public function updateRecruiterProfile(Request $request)
     {
         $recruiter=Auth::guard('recruiter')->user();
@@ -101,100 +107,28 @@ class RecruiterController extends Controller
         $recruiter->update();
         return \Redirect::route('recruiter.profile');
     }
-    public function inactiveUser(Request $request) 
-    {
-
-    }
-    // public function companyProfile()
-    // {
-    //     $countries = DataArrayHelper::defaultCountriesArray();
-    //     $industries = DataArrayHelper::defaultIndustriesArray();
-    //     $ownershipTypes = DataArrayHelper::defaultOwnershipTypesArray();
-    //     $company = Company::findOrFail(Auth::guard('recruiter')->user()->id_company);
-    //     return view('company.edit_profile')
-    //                     ->with('company', $company)
-    //                     ->with('countries', $countries)
-    //                     ->with('industries', $industries)
-    //                     ->with('ownershipTypes', $ownershipTypes);
-    // }
-    // public function updateCompanyProfile(CompanyFrontFormRequest $request)
-    // {
-    //     $company = Company::findOrFail(Auth::guard('recruiter')->user()->id_company);
-    //     /*         * **************************************** */
-    //     if ($request->file('logo')) {
-    //         $is_deleted = $this->deleteCompanyLogo($company->id);
-    //         $image = $request->file('logo');
-    //         $fileName = ImgUploader::UploadImage('company_logos', $image, $request->input('name'), 300, 300, false);
-    //         $company->logo = $fileName;
-    //     }
-    //     /*         * ************************************** */
-    //     $company->name = $request->input('name');
-    //     $company->email = $request->input('email');
-    //     if (!empty($request->input('password'))) {
-    //         $company->password = Hash::make($request->input('password'));
-    //     }
-    //     $company->ceo = $request->input('ceo');
-    //     $company->industry_id = $request->input('industry_id');
-    //     $company->ownership_type_id = $request->input('ownership_type_id');
-    //     $company->description = $request->input('description');
-    //     $company->location = $request->input('location');
-    //     $company->map = $request->input('map');
-    //     $company->no_of_offices = $request->input('no_of_offices');
-    //     $website = $request->input('website');
-    //     $company->website = (false === strpos($website, 'http')) ? 'https://' . $website : $website;
-    //     $company->no_of_employees = $request->input('no_of_employees');
-    //     $company->established_in = $request->input('established_in');
-    //     // $company->fax = $request->input('fax');
-    //     $company->phone = $request->input('phone');
-    //     $company->facebook = $request->input('facebook');
-    //     $company->twitter = $request->input('twitter');
-    //     $company->linkedin = $request->input('linkedin');
-    //     $company->google_plus = $request->input('google_plus');
-    //     $company->pinterest = $request->input('pinterest');
-    //     $company->country_id = $request->input('country_id');
-    //     $company->state_id = $request->input('state_id');
-    //     $company->city_id = $request->input('city_id');
-    //     $company->is_subscribed = $request->input('is_subscribed', 0);
-        
-    //     $company->description = str_replace("\"", "'", $company->description);
-		
-    //     $company->slug = str_slug($company->name, '-') . '-' . $company->id;
-    //     $company->update();
-	// 	/*************************/
-	// 	Subscription::where('email', 'like', $company->email)->delete();
-	// 	if((bool)$company->is_subscribed)
-	// 	{			
-	// 		$subscription = new Subscription();
-	// 		$subscription->email = $company->email;
-	// 		$subscription->name = $company->name;
-	// 		$subscription->save();
-	// 		/*************************/
-	// 		Newsletter::subscribeOrUpdate($subscription->email, ['FNAME'=>$subscription->name]);
-	// 		/*************************/
-	// 	}
-	// 	else
-	// 	{
-	// 		/*************************/
-	// 		Newsletter::unsubscribe($company->email);
-	// 		/*************************/
-	// 	}
-    //     flash(__('Company has been updated'))->success();
-    //     return \Redirect::route('recruiter.company.profile');
-    // }
+    /**
+     * Funcion que carga y muestra los trabajos de la compañia a la que pertenece el reclutador 
+     */
+    
     public function postedJobs()
     {   
         $jobs=Auth::guard('recruiter')->user()->jobs()->paginate(10);
         return view('job.company_posted_jobs')->with('jobs', $jobs);
         
     }
-
+    /**
+     * Funcion que carga y muestra todos los actuales aplicantes a una plaza en especifico
+     */
     public function listAppliedUsers($job_id){
         $job_applications = JobApply::where('job_id', '=', $job_id)->Where('state','=',1) ->get();
         return view('job.job_applications')
                         ->with('job_applications', $job_applications)
                         ->with('job_id',$job_id);
     }
-
+    /**
+     * Funcion que muestra en el perfil del aplicante los datos con los que aplico a una plaza 
+     */
     public function applicantProfile($application_id){
 
         $job_application = JobApply::findOrFail($application_id);
@@ -223,6 +157,10 @@ class RecruiterController extends Controller
                         ->with('datos',$video);
     }
 
+    /**
+     * Funcion que se encarga de obtener y mostrar la lista de aplicantes a una plaza solo los aplicantes que son candidatos favoritos de la compañia
+     */
+    
     public function listFavouriteAppliedUsers(Request $request, $job_id){
         $company_id = Auth::guard('recruiter')->user()->id_company;
         //$user_ids = FavouriteApplicant::where('job_id', '=', $job_id)->where('company_id', '=', $company_id)->pluck('user_id')->toArray();
@@ -233,6 +171,9 @@ class RecruiterController extends Controller
                         ->with('job_applications', $job_applications)
                         ->with('job_id',$job_id);
     }
+    /**
+     * Funcion que obtiene y retorna la vista de los candidatos que son seguidores de la compañia
+     */
     
     public function companyFollowers(){
         $company = Company::findOrFail(Auth::guard('recruiter')->user()->id_company);
@@ -243,7 +184,10 @@ class RecruiterController extends Controller
                         ->with('users', $users)
                         ->with('company', $company);
     }
-
+    /**
+     * Funcion que carga el perfil publico de un aplicante
+     */
+    
     public function userProfile($application_id){
         $user = User::findOrFail($application_id);
         $profileCv = $user->getDefaultCv();
@@ -263,6 +207,10 @@ class RecruiterController extends Controller
                         ->with('page_title', 'Job Seeker Profile')
                         ->with('form_title', 'Contact Job Seeker');
     }
+    /**
+     * Funcion que agrega a un candidato a la lista negra de la compañia
+     */
+    
     public function addToBlackList(Request $request)
     {
         $application_id = $request->input('application_id');
@@ -283,6 +231,9 @@ class RecruiterController extends Controller
             ]);
         }
     }
+    /**
+     * Funcion que elimina a un candidato de la lista negra desde el perfil del candidato
+     */
     public function deleteToBlackList($application_id,$user_id,$type,$company_id)
     {
         $id=DB::select('SELECT id FROM lista_negra where id_candidato=:user_id and id_empresa=:company_id', ['user_id'=>$user_id,'company_id'=>$company_id]);
@@ -293,7 +244,11 @@ class RecruiterController extends Controller
         } else {
             return \Redirect::route('recruiter.applicant.profile', $application_id);
         }
-    }
+    }   
+    /**
+     * Funcion que elimina a un candidato de la lista negra desde la vista de la lista negra
+     */
+    
     public function deleteFromBlackList($user_id, $company_id)
     {
         $id=DB::select('SELECT id FROM lista_negra where id_candidato=:user_id and id_empresa=:company_id', ['user_id'=>$user_id,'company_id'=>$company_id]);
@@ -301,6 +256,10 @@ class RecruiterController extends Controller
         flash(__('Job seeker has been remove in black list'))->error();
         return \Redirect::route('recruiter.show.blacklist');
     }
+    /**
+     * Funcion que obtiene y mustra todos los candidatos de la lista negra de la empresa
+     */
+    
     public function showBlacklist(Request $request) 
     {
         $companyId = Auth::guard('recruiter')->user()->id_company;
@@ -312,6 +271,10 @@ class RecruiterController extends Controller
         return view('company.company_blacklist')->with('users', $users);
 
     }
+    /**
+     * Funcion que agrega a un candidato a la lista de favoritos de la compañia
+     */
+    
     public function addToFavouriteApplicant($application_id, $user_id,$type, $company_id)
     {    
         $data['user_id'] = $user_id;
@@ -324,7 +287,10 @@ class RecruiterController extends Controller
             return \Redirect::route('recruiter.applicant.profile', $application_id);
         }
     }
-
+    /**
+     * Funcion que elimina a un candidato de la lista de favoritos de la compañia
+     */
+    
     public function removeFromFavouriteApplicant($application_id, $user_id,$type, $company_id)
     {
         $data['user_id'] = $user_id;
@@ -339,22 +305,61 @@ class RecruiterController extends Controller
             return \Redirect::route('recruiter.applicant.profile', $application_id);
         }
     }
-
+    /**
+     * Funcion que obtiene y retorna las reuniones disponibles actualmente de la compañia
+     *  Solo las reuniones en donde el reclutador es parte de ella 
+     */
     public function getCompanyMeetings(Request $request) {
+        date_default_timezone_set('America/El_Salvador');
         $dateNow = date('Y-m-d', time());
         $recruiter=Auth::guard('recruiter')->user();
-        $meetings = DB::select('SELECT A.id, A.planned_date, A.planned_time, B.image,
-         B.name, B.email, D.title from meetings A inner join users B on 
-         A.user_id = B.id inner join job_apply C on C.id = A.job_apply_id 
-         inner join jobs D on C.job_id=D.id inner join recruiter_meetings E on A.id=E.meeting_id where A.planned_date >= :date and 
-         A.company_id = :id_company and A.state = 0 and E.recruiter_id=:recruiter_id and E.state=true order by A.planned_date ASC', 
-         ['date' => $dateNow, 'id_company'=>$recruiter->id_company,'recruiter_id'=>$recruiter->id]);
+
+        //Si es master se obtienen las reuniones expiradas hace mas de un dia
+        if($recruiter->recruiterType()){
+
+            $meetings = DB::select('SELECT A.id, A.planned_date, A.planned_time, B.image, B.name, B.email, D.title 
+                                    from meetings A 
+                                    inner join users B on A.user_id = B.id 
+                                    inner join job_apply C on C.id = A.job_apply_id 
+                                    inner join jobs D on C.job_id=D.id 
+                                    inner join recruiter_meetings E on A.id=E.meeting_id 
+                                    inner join messages_center F on F.meeting_id=A.id 
+                                    where A.company_id = :id_company 
+                                    and A.state = 0 
+                                    and E.recruiter_id=:recruiter_id 
+                                    and E.state=true
+                                    and F.accepted=1 
+                                    order by A.planned_date ASC', 
+            ['id_company'=>$recruiter->id_company,'recruiter_id'=>$recruiter->id]);
+
+        }else{
+            //si es JR no se obtendran las reuniones expiradas hace un dia o mas
+            $meetings = DB::select('SELECT A.id, A.planned_date, A.planned_time, B.image, B.name, B.email, D.title 
+                                    from meetings A 
+                                    inner join users B on A.user_id = B.id 
+                                    inner join job_apply C on C.id = A.job_apply_id 
+                                    inner join jobs D on C.job_id=D.id 
+                                    inner join recruiter_meetings E on A.id=E.meeting_id 
+                                    inner join messages_center F on F.meeting_id=A.id 
+                                    where A.planned_date >= :date 
+                                    and A.company_id = :id_company 
+                                    and A.state = 0 
+                                    and E.recruiter_id=:recruiter_id 
+                                    and E.state=true
+                                    and F.accepted=1 
+                                    order by A.planned_date ASC', 
+            ['date' => $dateNow, 'id_company'=>$recruiter->id_company,'recruiter_id'=>$recruiter->id]);
+            
+        }
+
         $meetings = collect($meetings);
 
         return view('company.meetings')
                     ->with('meetings', $meetings);
     }
-
+    /**
+    * Funcion que retorna a la modal la informacion de una reunion con un aplicante en especifico a una plaza en especifico (Master)
+     */
     public function getScheduleMeeting($user_id,$job_id,$company_id){   
         $arrayRecruiter=array();
         $recruiterSelect=array();
@@ -377,7 +382,10 @@ class RecruiterController extends Controller
                     ->with('recruiter',$recruiter)
                     ->with('arrayRecruiter',$recruiterSelect);
     }
-
+    /**
+     * Funcion que guarda una nueva reunion con un aplicante a una plaza en especifico (Master)
+     */
+    
     public function saveMeeting(Request $request)
     {
        $user_id=$request->input('user_id');
@@ -424,7 +432,9 @@ class RecruiterController extends Controller
        $meeting->sendNotification($dataMessage);
           
     }
-
+    /**
+     * Funcion encargada de actualizar una reunion con un aplicante en especifico (Master)
+     */
     public function updateMeeting(Request $request)
     {
         $id=$request->input('id');
@@ -466,7 +476,10 @@ class RecruiterController extends Controller
         Mail::send(new ChangeMeetingMail($data));
         
     }
-
+    /**
+     * Funcion encargada de eliminar una reunion con un aplicante en especifico (Master)
+     */
+    
     public function deleteMeeting(Request $request)
     {
         $id=$request->input('id');
@@ -484,7 +497,10 @@ class RecruiterController extends Controller
 
         $this->cancelNotifications($user,$company,$recruiters_id,$slug,$meet,$currentRecru);
     }
-
+    /**
+     * Funcion encargada de notificar por mensaje interno y correo cuando un reclutador (Master) decide eliminar/cancelar una reunion
+    */
+    
     private function cancelNotifications($user,$company,$recruiters_id,$slug,$meet,$currentRecru){
         $recruiter=[];
         foreach($recruiters_id as $value){
@@ -535,7 +551,7 @@ class RecruiterController extends Controller
         $dataMessage['receivedfrom'] = $from;
         $dataMessage['meeting_id'] = $meet[0]->id;
         $meeting = new MeetingController();
-        $meeting->sendNotification($dataMessage);
+        $meeting->sendNotificationMeetingCanceled($dataMessage);
 
         $dataMessage['user_id'] = $currentRecru;
         $dataMessage['company_id'] = $company[0]->id;
@@ -544,7 +560,7 @@ class RecruiterController extends Controller
         $dataMessage['receivedfrom'] = $from;
         $dataMessage['meeting_id'] = $meet[0]->id;
         $meeting = new MeetingController();
-        $meeting->sendNotification($dataMessage);
+        $meeting->sendNotificationMeetingCanceled($dataMessage);
 
         if(count($recruiters_id)>0){
             foreach($recruiters_id as $value){
@@ -555,11 +571,14 @@ class RecruiterController extends Controller
                 $dataMessage['receivedfrom'] = $from;
                 $dataMessage['meeting_id'] = $meet[0]->id;
                 $meeting = new MeetingController();
-                $meeting->sendNotification($dataMessage);
+                $meeting->sendNotificationMeetingCanceled($dataMessage);
             }
         }
     }
-
+    /**
+     * Funcion que agrega nuevos comentarios en el perfil de un aplicante a una de las plazas de la compañia
+     */
+    
     public function newComment(Request $request,$application_id,$from)
     {        
         $recruiter_id=Auth::guard('recruiter')->user()->id;
@@ -572,7 +591,9 @@ class RecruiterController extends Controller
         }
         return redirect()->route('recruiter.applicant.profile', ['application_id' => $application_id]);
     }
-
+    /**
+     * Funcion que despliga y muestra todos los comentarios que se han hecho sobre un aplicante de una de las plazas de la compañia
+     */
     public function showCommentCompany (Request $request)
     {
         $application_id=$request->input('application_id');
@@ -618,6 +639,9 @@ class RecruiterController extends Controller
         }
         echo $html;
     }
+    /**
+     * Funcion encargada de borrar un comentario del perfil de un aplicante a una de las plazas de la compañia
+     */
     
     public function deleteCommentCompany (Request $request)
     {
@@ -647,7 +671,10 @@ class RecruiterController extends Controller
 
         echo $html;
     }
-
+    /**
+     * Funcion que abre una modal con los trabajos de la compañia (Jr)
+     */
+    
     public function showModalJobs($user_id){
         $jobs=Auth::guard('recruiter')->user()->jobs()->paginate(10);
         $user=$user_id;
@@ -656,8 +683,16 @@ class RecruiterController extends Controller
             ->with("jobs",$jobs)
             ->with("userId",$user)
         ;
-    }
 
+        /* 
+            esta funcion se utiliza para seleccionar una plaza para recomendar
+            a un candidato (previamente seleccionado) a esa plaza
+         */
+    }
+    /**
+     * Funcion que envia el mensaje de la modal para recomendar candidatos a la compañia y a los reclutadadores Master (Jr)
+     */
+    
     public function recommendCandidate(Request $request){
         $recruiter=Auth::guard('recruiter')->user();
         $userId=$request->input('user');
@@ -671,6 +706,7 @@ class RecruiterController extends Controller
         $jobName=DB::select('SELECT title FROM jobs WHERE id=:id',['id'=>$jobId]);
         $message="El reclutador '$recruiter->name $recruiter->lastname' ha recomendado al usuario '" . $userName[0]->name ."' para la plaza '" . $jobName[0]->title ."' y ha opinado: '$recruiterMsg'";
 
+        // Se verifica que el reclutador sea Jr
         if(!$recruiter->recruiterType()){
             $dataMessage['user_id'] = $recruiter->id;
             $dataMessage['company_id'] = $recruiter->id_company;
@@ -695,6 +731,9 @@ class RecruiterController extends Controller
             }  
         } 
     }
+    /**
+     * Funcion que envia un mensaje a la compañia y a los reclutadores master solicitando un cambio en la reunion (Jr)
+     */
     
     public function changeMeeting(Request $request){
         $idMeeting=$request->input("id");
@@ -730,7 +769,10 @@ class RecruiterController extends Controller
             }            
         }               
     } 
-
+    /**
+     * Funcion que recolecta y muestra la informacion de los candidatos que son parte de la lista de favoritos de la compañia
+     */
+    
     public function showFavourites(Request $request) {
         $companyId = Auth::guard('recruiter')->user()->id_company;
         $users = DB::select('select F.id, F.user_id, U.first_name, U.last_name, U.image, CASE WHEN F.job_id = null THEN "General" WHEN F.job_id <> null THEN (SELECT title FROM jobs WHERE id = F.job_id) END as job
@@ -738,6 +780,10 @@ class RecruiterController extends Controller
         INNER JOIN users U ON F.user_id = U.id where F.company_id = :id_company;', ['id_company'=>$companyId]);
         return view('company.company_favourites')->with('users', $users);
     }
+    /**
+     * Funcion que elimina a un candidato de la lista de favoritos de la compañia
+     */
+    
     public function deleteFromFavourites($user_id)
     {
        $company_id=Auth::guard('recruiter')->user()->id_company;
@@ -748,4 +794,5 @@ class RecruiterController extends Controller
         flash(__('Job seeker has been removed from favorites list'))->success();
         return \Redirect::route('recruiter.company.favourites');
     }
+    
 }

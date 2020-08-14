@@ -40,3 +40,4 @@ Route::post('delete-profile-company', 'Company\CompanyController@deleteProfileCo
 //Reclutadores
 Route::get('company-recruiters', 'Company\CompanyController@showRecruiters')->name('company.recruiters');
 Route::get('send-invitation-recruiters', 'GeneralController@sendInvitationRecruiter')->name('send.invitation.recruiter');
+Route::post('verify-exist-email', 'GeneralController@verifyExistEmail')->name('verify.exist.email');

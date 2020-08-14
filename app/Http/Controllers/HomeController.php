@@ -28,6 +28,9 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Comprueba el llenado del perfil del usuario candidato en caso de no cumplir redireccion a la vista correspondiente
+     */
     public function index()
     {
         $perfil_completo=ProfileArrayHelper::comprueba();

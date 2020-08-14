@@ -334,22 +334,28 @@
         
     }
 
-    function acceptMeeting(meeting_id) {
+    function acceptMeeting(meeting_id,message_id) {
         $.ajax({
             type: 'GET',
             url: "{{route('accept.meeting')}}",
-            data: {id: meeting_id },
+            data: {
+                id_meeting: meeting_id , 
+                id_message:message_id
+            },
             success: function() {
                 window.location.reload();
             }
         });
     }
 
-    function denyMeeting(meeting_id) {
+    function denyMeeting(meeting_id,message_id) {
         $.ajax({
             type: 'GET',
             url: "{{route('deny.meeting')}}",
-            data: {id: meeting_id },
+            data: {
+                id_meeting: meeting_id , 
+                id_message:message_id
+            },
             success: function() {
                 window.location.reload();
             }
@@ -415,17 +421,17 @@
             var msgHtml = `<div id="format-notification">
                                 <div id="format-title-notification">{{__('Cloik Notification')}}</div>
                                 <div id="format-message-notification">`+ message['message'] + `</div>`;
-                                if (message['state'] == 0) {
+                                if (message['accepted'] == 0) {
                                     msgHtml += `<div id="format-btn-notification">
-                                                    <a class="btn" href="javascript:acceptMeeting(`+ message['meeting_id']+`);">{{__('Accept Meeting')}}</a>
-                                                    <a class="btn" href="javascript:denyMeeting(`+ message['meeting_id']+`);">{{__('Deny Meeting')}}</a>
+                                                    <a class="btn" href="javascript:acceptMeeting(${message['meeting_id']},${messageId});">{{__('Accept Meeting')}}</a>
+                                                    <a class="btn" href="javascript:denyMeeting(${message['meeting_id']},${messageId});">{{__('Deny Meeting')}}</a>
                                                 </div>`;
                                 }
-                                else if (message['state'] == 1){
+                                else if (message['accepted'] == 1){
                                     msgHtml +=`<div style="padding: 2rem 0rem; text-align: center; font-weigth: 300;">{{__('This meeting has already been accepted')}}</div>`;
                                 }
-                                else{
-                                    msgHtml +=`<div style="padding: 2rem 0rem; text-align: center; font-weigth: 300;">{{__('This meeting has already been deny')}}</div>`;
+                                else if (message['accepted'] == 2){
+                                    msgHtml +=`<div style="padding: 2rem 0rem; text-align: center; font-weigth: 300;">{{__('This meeting has already been deny/canceled')}}</div>`;
                                 }
                             msgHtml += `</div>`;
             $("#messagesContent").html(msgHtml);

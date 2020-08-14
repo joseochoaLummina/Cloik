@@ -233,12 +233,18 @@ class LanguageLevelController extends Controller
             $count++;
         }
     }
+    /**
+     * Obtiene los parrafos con estado activos para los test de idiomas
+     */
     public function getLanguageTest()
     {
         $array=DB::table('lang_test')->where('is_active', 1)->get()->toArray();
         return view('admin.language_level.language_test')
                 ->with('datos',$array);
     }
+    /**
+     * Agrega un nuevo parrafo con estado activo para test de idioma
+     */
     public function newLanguageTest(Request $request)
     {
         $paragraph=$request->input('newParagraph');
@@ -246,12 +252,18 @@ class LanguageLevelController extends Controller
         flash('Language Test has been added!')->success();
         return \Redirect::route('get.language.test');
     }
+    /**
+     * Actualiza un parrafo por su id
+     */
     public function updateLanguageTest(Request $request)
     {
         $id=$request->input('id');
         $paragraphs=$request->input('paragraphs');
         DB::update('update lang_test set paragraph =:paragraph where id =:id', ['id'=>$id,'paragraph'=>$paragraphs]);
     }
+    /**
+     * Cambia el estado del campo activo para no mostrar el parrafo en las pruebas de test de idiomas
+     */
     public function deleteLanguageTest(Request $request)
     {
         $id=$request->input('id');

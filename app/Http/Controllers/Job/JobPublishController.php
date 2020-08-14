@@ -30,47 +30,9 @@ class JobPublishController extends Controller
         $this->middleware('recruiter')->except(['storeFrontJob','updateFrontJob','updateVideo','deleteJob','updateFullTextSearch','assignJobValues','createJob','storeJob','editJob','updateJob','createFrontJob','editFrontJob','countNumJobs','scopeNotExpire','isJobExpired']); 
         $this->middleware('company')->except(['storeFrontJob','updateFrontJob','updateVideo','deleteJob','updateFullTextSearch','assignJobValues','createJob','storeJob','editJob','updateJob','createFrontJob','editFrontJob','countNumJobs','scopeNotExpire','isJobExpired']); 
     }
-    // public function storeFrontJob(Request $request){
-    //     if (is_null($request->input('videoJobURL')) || empty($request->input('videoJobURL'))) {
-    //         $video= "";
-    //     }
-    //     else  {
-    //         $video = $request->input('videoJobURL');
-    //     }
-    //     $title=$request->input('title');
-    //     $slug=str_replace(" ","-",$title);
-    //     $description=$request->input('description');
-    //     $country_id=$request->input('country_id');
-    //     $state_id=$request->input('state_id');
-    //     $city_id=$request->input('city_id');
-    //     $salary_from=$request->input('salary_from');
-    //     $salary_to=$request->input('salary_to');
-    //     $salary_currency=$request->input('salary_currency');
-    //     $salary_period_id=$request->input('salary_period_id');
-    //     $hide_salary=$request->input('hide_salary');
-    //     $career_level_id=$request->input('career_level_id');
-    //     $functional_area_id=$request->input('functional_area_id');
-    //     $job_type_id=$request->input('job_type_id');
-    //     $job_shift_id=$request->input('job_shift_id');
-    //     $num_of_positions=$request->input('num_of_positions');
-    //     $gender_id=$request->input('gender_id');
-    //     $expiry_date=$request->input('expiry_date');
-    //     $degree_level_id=$request->input('degree_level_id');
-    //     $job_experience_id=$request->input('job_experience_id');
-    //     $is_freelance=$request->input('is_freelance');
-    //     $recomendations=$request->input('recomendations');
-    //     $company_id=Auth::guard('company')->user()->id;
-    //     $confidential=$request->input('confidential');
-    //     $is_active=1;
-    //     $is_featured=1;
-        
-    //     $consulta = DB::insert('insert into jobs (company_id,title,description,country_id,state_id,city_id,is_freelance,career_level_id,salary_from,salary_to,hide_salary,salary_currency,salary_period_id,functional_area_id,job_type_id,job_shift_id,num_of_positions,gender_id,expiry_date,degree_level_id,job_experience_id,is_active,is_featured,created_at,search,slug,video_recommendations, videoJobURL,confidential)
-    //      values (:company_id,:title,:description,:country_id,:state_id,:city_id,:is_freelance,:career_level_id,:salary_from,:salary_to,:hide_salary,:salary_currency,:salary_period_id,:functional_area_id,:job_type_id,:job_shift_id,:num_of_positions,:gender_id,:expiry_date,:degree_level_id,:job_experience_id,:is_active,:is_featured,CURDATE(),:search,:slug,:video_recommendations, :video, :confidential)',
-    //       ['company_id'=>$company_id,'title'=>$title,'description'=>$description,'country_id'=>$country_id,'state_id'=>$state_id,'city_id'=>$city_id,'is_freelance'=>$is_freelance,'career_level_id'=>$career_level_id,'salary_from'=>$salary_from,'salary_to'=>$salary_from,'hide_salary'=>$hide_salary,'salary_currency'=>$salary_currency,'salary_period_id'=>$salary_period_id,'functional_area_id'=>$functional_area_id,'job_type_id'=>$job_type_id,'job_shift_id'=>$job_shift_id,'num_of_positions'=>$num_of_positions,'gender_id'=>$gender_id,'expiry_date'=>$expiry_date,'degree_level_id'=>$degree_level_id,'job_experience_id'=>$job_experience_id,'is_active'=>$is_active,'is_featured'=>$is_featured,'search'=>$title,'slug'=>$slug,'video_recommendations'=>$recomendations, 'video'=>$video,'confidential'=>$confidential]);
-    //       dd($consulta);
-    //     flash('Job has been added!')->success();
-    //     return redirect('/posted-jobs');
-    // }
+    /**
+     * Actualiza la informacion de una plaza
+     */
     public function updateFrontJob(Request $request){
         
         if (is_null($request->input('videoJobURL')) || empty($request->input('videoJobURL'))) {
@@ -176,6 +138,9 @@ class JobPublishController extends Controller
         flash('Job has been updated!')->success();
         return redirect('/edit-front-job/'.$id_job);
     }
+    /**
+     * Cambia el video de una plaza por uno nuevo
+     */
     public function updateVideo(Request $request)
     {
         $video=$request->input('nameFile');

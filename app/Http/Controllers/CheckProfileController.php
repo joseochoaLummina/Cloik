@@ -2,13 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Input;
+use File;
 use Auth;
 use ImgUploader;
 use Newsletter;
+use Redirect;
 use App\User;
+use App\ApplicantMessage;
+use App\Company;
+use App\FavouriteCompany;
+use App\Gender;
+use App\MaritalStatus;
+use App\Country;
+use App\State;
+use App\City;
+use App\JobExperience;
+use App\JobApply;
+use App\CareerLevel;
+use App\Industry;
+use App\FunctionalArea;
+use App\Http\Requests;
 use App\ProfileSummary;
 use App\Subscription;
 use App\Traits\Cron;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Helpers\ProfileArrayHelper;
 use App\Helpers\DataArrayHelper;
@@ -27,27 +46,6 @@ use App\Traits\ProfileEducationTrait;
 use App\Traits\ProfileSkillTrait;
 use App\Traits\ProfileLanguageTrait;
 use App\Traits\Skills;
-
-
-use DB;
-use Input;
-use File;
-use Carbon\Carbon;
-use Redirect;
-use App\ApplicantMessage;
-use App\Company;
-use App\FavouriteCompany;
-use App\Gender;
-use App\MaritalStatus;
-use App\Country;
-use App\State;
-use App\City;
-use App\JobExperience;
-use App\JobApply;
-use App\CareerLevel;
-use App\Industry;
-use App\FunctionalArea;
-use App\Http\Requests;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 
@@ -68,6 +66,9 @@ class CheckProfileController extends Controller
      * Show the application dashboard.
      *
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * Verifica si un usuario candidato tiene toda la informacion obligatoria en su perfil de no tenerla lo envia a la vista correspondiente para completarla,comprueba si tiene un video de presentacion en su perfil de no tenerlo lo envia a la vista correspondiente para completarlo, de tener ambos completos lo redirecciona a la vista home
      */
     public function fullProfile()
     {   
@@ -105,6 +106,9 @@ class CheckProfileController extends Controller
             return redirect('home');
         }
     }
+    /**
+     * Actualiza informacion del perfil y un resumen del candidato
+     */
     public function updateMyProfile(UserFrontFormRequest $request){
         $user = User::findOrFail(Auth::user()->id);
         

@@ -32,7 +32,10 @@ use App\Helpers\ProfileArrayHelper;
 
 
 class ContactController extends Controller
-{
+{   
+    /**
+     * Funcion para el contacto hacia los administradores de la plataforma cloik verificando el llenado de informacion obligatoria para el usuario y empresa
+     */
     public function contactCompany()
     {
         if (Auth::user()){
@@ -61,6 +64,9 @@ class ContactController extends Controller
         return view('contact.contact_page')
                     ->with('seo', $seo); 
     }
+    /**
+     * Funcion para el acceso a la vista para el contacto hacia los administradores de la plataforma comprobando el llenado de informacion obligatoria para el usuario y empresa
+     */
     public function index()
     {
         $seo = SEO::where('seo.page_title', 'like', 'contact')->first();

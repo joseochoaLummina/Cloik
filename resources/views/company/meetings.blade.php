@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('content') 
+@section('content')
 <!-- Header start --> 
 @include('includes.header') 
 <!-- Header end --> 
@@ -29,6 +29,56 @@
                     <div id="meetContainer">
                         @if (Count($meetings) > 0)
                             @foreach ( $meetings as $meet)
+
+                                <?php
+                                    date_default_timezone_set('America/El_Salvador');
+                                    $dateTimeMeeting=date_create($meet->planned_date.' '.substr($meet->planned_time,0,-3));
+                                    $dateTimeNow=date_create(date("Y-m-d H:i"));
+                                    $diff=date_diff($dateTimeMeeting,$dateTimeNow);
+                                    //Formato +(pasaron)/-(faltan) Years Month Days Hours Minutes
+                                    $dateTimeDiff=explode(' ', $diff->format("%R %y %m %d %h %i"));
+
+                                    $dateTimeDiff=[
+                                        "symbol"=>$dateTimeDiff[0],
+                                        "years"=>$dateTimeDiff[1],
+                                        "months"=>$dateTimeDiff[2],
+                                        "days"=>$dateTimeDiff[3],
+                                        "hours"=>$dateTimeDiff[4],
+                                        "minutes"=>$dateTimeDiff[5]
+                                    ];
+                                    
+                                    if( $dateTimeDiff["years"]==0 && 
+                                        $dateTimeDiff["months"]==0 && 
+                                        $dateTimeDiff["days"]==0 && 
+                                        //$dateTimeDiff["hours"]==0 &&
+                                        (
+                                            ( //permitir que entre 5 min antes
+                                                $dateTimeDiff["symbol"]=="-" &&
+                                                $dateTimeDiff["hours"]==0 &&                                            
+                                                $dateTimeDiff["minutes"]<=5
+                                            ) 
+                                        || 
+                                            ( //la reunion esta disponible 2 horas
+                                                $dateTimeDiff["symbol"]=="+" && 
+                                                $dateTimeDiff["hours"]<2 &&
+                                                $dateTimeDiff["minutes"]<=59
+                                            )
+                                        )
+                                    )
+                                        $call=true;
+                                    elseif( $dateTimeDiff["symbol"]=="+"  && 
+                                            ( // expira luego de a ver pasado 2 horas
+                                                $dateTimeDiff["hours"]>=2 || 
+                                                $dateTimeDiff["days"]>0 || 
+                                                $dateTimeDiff["months"]>0 || 
+                                                $dateTimeDiff["years"]>0
+                                            )
+                                        )
+                                        $call=-1;
+                                    else
+                                        $call=false;
+                                ?>
+                                
                                 <div class="company-meeting">
                                     <!-- {{$meet->image}} -->
                                     <img src="{{asset('/user_images').'/'.$meet->image}}">
@@ -38,8 +88,8 @@
                                             <div class="meetSubTitle">{{$meet->title}}</div>
                                             <div class="meetLocation">{{$meet->email}}</div>
                                             <div class="meetDate">
-                                                <?php
-                                                    $dateNow = date('Y-m-d', time());
+                                                <?php                                                    
+                                                    //$dateNow = date('Y-m-d', time());
                                                     $m = $meet->planned_time;
                                                     $hora = substr($m, 0, 2);
                                                     $min = substr($m, 3, 2);
@@ -58,26 +108,33 @@
                                                     echo $d.' '.$hora.':'.$min.' '.$jor;
                                                 ?>
                                             </div>
+
+                                            @if($call===-1)
+                                                <p class="callExpire">{{__('This call expired')}}</p>
+                                            @endif
                                         </div>
-                                        <div class="meetlinks">
-                                            @if ($d == $dateNow)
+                                        <div class="meetlinks">                                
+                                            @if ($call===true)
                                                 <a id="llamar" href="{{ route('meetings.call', ['id'=>$meet->id]) }}" class="btn enterCall">
                                                     {{__('Enter Call')}}
                                                 </a>
-                                            @endif
-                                            
-                                            @if ($d != $dateNow)
-                                                @if (Auth::guard('company')->user() || Auth::guard('recruiter')->user()->recruiterType())
-                                                    <a class="btn cancelCall" id="btnCancelCall" onclick="eliminar( {{$meet->id}} )">
+                                            @elseif(Auth::guard('company')->user() || Auth::guard('recruiter')->user()->recruiterType())
+                                                    <a class="btn cancelCall" id="btnCancelCall" onclick="eliminar( {{$meet->id}} )">                                                        
                                                         <i class="fa fa-close"></i>
                                                     </a>
-                                                @elseif(!Auth::guard('recruiter')->user()->recruiterType())
+                                            @elseif(!Auth::guard('recruiter')->user()->recruiterType())
+
+                                                @if($call===-1)
+                                                    <a class="btn btn-primary" disabled='disabled'>
+                                                        <i class="fa fa-envelope-o" aria-hidden="true"></i> {{__('Request a change')}}  
+                                                    </a>
+                                                @else
                                                     <a class="btn btn-primary" onclick="buttonSend( {{$meet->id}} )" data-toggle="modal" data-target="#changeMeetingModal">
-                                                        <i class="fa fa-envelope-o" aria-hidden="true"></i> {{__('Request a change')}}
+                                                        <i class="fa fa-envelope-o" aria-hidden="true"></i> {{__('Request a change')}}  
                                                     </a>
                                                 @endif
-                                            @endif
-                                            
+                                                                                                    
+                                            @endif   
                                         </div>
                                     </div>
                                 </div>                            
@@ -116,6 +173,10 @@
     .changeMeetingBox{
         width:100%;
         height:100%;
+    }
+
+    .callExpire{
+        color:red;
     }
 </style>                                                   
 @endpush

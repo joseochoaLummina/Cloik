@@ -24,7 +24,10 @@ class CenterMessagesController extends Controller
             ]
         ]);
     }
-
+    /** 
+     * Funcion:getListMessages
+     * Obtiene una lista de mensajes recibidos, enviados y notificaciones de parte de una empresa o un usuario candidato
+    */
     public function getListMessages($type) {
         if (Auth::guard('company')->check()) {
             $company_id = Auth::guard('company')->user()->id;
@@ -46,14 +49,16 @@ class CenterMessagesController extends Controller
         else if (Auth::check()) {
             $user_id = Auth::user()->id;
             $messages = DB::select('select CM.id, CM.user_id, U.name as receptor, CM.company_id, C.name as emisor, CM.type, CM.message, CM.create_at, 
-            CM.state, CM.receivedfrom, CM.meeting_id from messages_center CM inner join users U on CM.user_id = U.id 
+            CM.state, CM.receivedfrom, CM.meeting_id, CM.accepted from messages_center CM inner join users U on CM.user_id = U.id 
             inner join companies C on CM.company_id = C.id 
             where CM.user_id = :id and CM.type = :type and CM.receivedfrom = 1 order by CM.state asc, CM.create_at desc;', ['id'=>$user_id, 'type' => $type]);
         }
         
         return $messages;
     }
-
+    /**
+     * Redirecciona a vista correspondiente para el centro de mensajes segun el tipo de mensaje a visualizar
+     */
     public function getCenterMessages(Request $request){
         if (!Auth::check()) {
             return Redirect::route('login');
@@ -67,7 +72,9 @@ class CenterMessagesController extends Controller
                 ->with('messages', $messages)
                 ->with('type', 'messages');
     }
-
+    /**
+     * Redirecciona a vista correspondiente para el centro de mensajes segun el tipo de mensaje a visualizar
+     */
     public function getCompanyCenterMessages(Request $request){
         if (!Auth::guard('company')->check()) {
             return Redirect::route('login');
@@ -81,7 +88,9 @@ class CenterMessagesController extends Controller
                 ->with('messages', $messages)
                 ->with('type', 'messages');
     }
-
+    /**
+     * Marca un mensaje como leido
+     */
     public function ChangeMessagesToRead(Request $request) {
         $id_message = $request->input('id');
         $type_message = $request->input('typeMessage');
@@ -95,7 +104,9 @@ class CenterMessagesController extends Controller
 
         return $messages;
     }
-
+    /**
+     * Obtiene los mensajes segun el tipo seleccionado
+     */
     public function changeMessagesType(Request $request) {        
         $type_message = $request->input('typeMessage');
         $messages = $this->getListMessages($type_message);
@@ -110,11 +121,15 @@ class CenterMessagesController extends Controller
                 ->with('messages', $messages)
                 ->with('type', 'messages');
     }
-
+    /**
+     * Acepta una invitacion a un reunion programada enviada de parte de un compañia hacia un usuario candidato
+     */
     public function acceptMeeting(Request $request) {
-
-        $meeting_id = $request->input('id');
-        DB::update('update meetings set state = 1 where id = :id', ['id'=>$meeting_id]);
+        
+        $meeting_id = $request->input('id_meeting');
+        $message_id=$request->input('id_message');
+        DB::update('update meetings set state = 0 where id = :id', ['id'=>$meeting_id]);
+        DB::update('update messages_center set accepted = 1 where id = :id', ['id'=>$message_id]);
 
         $data = DB::select('select A.user_id, A.company_id, U.name, J.title 
         from meetings A inner join users U 
@@ -131,17 +146,25 @@ class CenterMessagesController extends Controller
         $meeting = new MeetingController();
         $meeting->sendNotification($dataMessage);
     }
-
+    /**
+     * Rechaza una invitacion a un reunion programada enviada de parte de un compañia hacia un usuario candidato
+     */
     public function denyMeeting(Request $request) {
 
-        $meeting_id = $request->input('id');
-        DB::update('update meetings set state = 2 where id = :id', ['id'=>$meeting_id]);
+        $meeting_id = $request->input('id_meeting');
+        $message_id=$request->input('id_message');
 
-        $data = DB::select('select A.user_id, A.company_id, U.name, J.title 
+        //DB::update('update meetings set state = 1 where id = :id', ['id'=>$meeting_id]); 
+        DB::update('UPDATE messages_center set accepted = 2 where id = :id', ['id'=>$message_id]);
+
+        $data = DB::select('SELECT A.user_id, A.company_id, U.name, J.title 
         from meetings A inner join users U 
         on A.user_id = U.id inner join job_apply JA 
         on A.job_apply_id = JA.id
         inner join jobs J on JA.job_id = J.id where A.id = :id;', ['id'=>$meeting_id]);
+
+        DB::delete('DELETE FROM meetings WHERE id=:id', ['id'=>$meeting_id]);
+        DB::delete('DELETE FROM recruiter_meetings WHERE meeting_id=:meeting_id', ['meeting_id'=>$meeting_id]); 
 
         $dataMessage['user_id'] = $data[0]->user_id;
         $dataMessage['company_id'] = $data[0]->company_id;
@@ -150,14 +173,18 @@ class CenterMessagesController extends Controller
         $dataMessage['receivedfrom'] = 0;
         $dataMessage['meeting_id'] = $meeting_id;
         $meeting = new MeetingController();
-        $meeting->sendNotification($dataMessage);
+        $meeting->sendNotificationMeetingCanceled($dataMessage);
     }
-
+    /**
+     * Elimina un mensaje seleccionado
+     */
     public function deleteMessage(Request $request) {
         $id = $request->input('id');
         return DB::delete('delete from messages_center where id = :id', ['id'=>$id]);
     }
-
+    /**
+     * 
+     */
     public function replyMessage(Request $request) {
         $id = $request->input('id');
         $msg = $request->input('msg');
@@ -179,7 +206,9 @@ class CenterMessagesController extends Controller
 
         return response()->json(['status'=>'ok']);
     }
-
+    /**
+     * Envia un mensaje a un candidato desde en una compañia o un reclutador
+     */
     public function sendMessageToCandidate(Request $request) {
 
         if (Auth::guard('company')->check()) {

@@ -47,6 +47,9 @@ class IndexController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Redireccion hacia la vista de inicio o de llenado de informacion obligatoria para completar el perfil
+     */
     public function index()
     {        
         $user=Auth::user();
@@ -117,7 +120,9 @@ class IndexController extends Controller
                             ->with('seo', $seo);
         }        
     }
-
+    /**
+     * Redireccion hacia la vista de inicio o de llenado de informacion obligatoria para completar el perfil
+     */
     public function inicio()
     {
         $topCompanyIds = $this->getCompanyIdsAndNumJobs(16);
